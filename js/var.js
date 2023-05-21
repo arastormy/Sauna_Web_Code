@@ -1,0 +1,1 @@
+var results = {"current_date": "2023/05/22", "hit_sum": 11510, "threshold": 10000, "rawdata": 5550, "sauna": {"min": 88, "max": 104}, "mizuburo": {"min": 12, "max": 17}, "price": {"min": 700, "max": 1400}, "location": ["\u6771\u4eac\u90fd", "\u795e\u5948\u5ddd\u770c"], "gaikiyoku": "\u25ef", "louly": "\u25ef"};

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>データサイエンスによって日常を豊かに</title>
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"/>
+    <script src="./js/data.js"></script>
+    <script src="./js/var.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>サウナ検索サイト　〜人気なサウナに共通する条件とは？〜</h1>
+    </header>
+
+    <div class="abstract">
+        <p style="font-size: 20px; margin-left: 0px;">当サイトによるデータ分析結果は以下の通りである。(<span id="current_date"></span>時点)</p>
+        <script>
+            document.getElementById("current_date").innerHTML = `${results.current_date}`;
+        </script>
+        <h2><strong>人気なサウナに共通する条件は・・・</strong></h2>
+        <div style="padding: 10px; margin-bottom: 10px; border: 5px double #000000;">
+            <li id="sauna"></li>
+            <li id="mizuburo"></li>
+            <li id="price"></li>
+            <li id="gaikiyoku"></li>
+            <li id="louly"></li>
+            <li id="location"></li>
+        </div>
+        <script>
+            document.getElementById("sauna").innerHTML = `サウナ温度：${results.sauna.min}〜${results.sauna.max}℃`;
+            document.getElementById("mizuburo").innerHTML = `水風呂温度：${results.mizuburo.min}〜${results.mizuburo.max}℃`;
+            document.getElementById("price").innerHTML = `料金：${results.price.min}〜${results.price.max}円`;
+            document.getElementById("gaikiyoku").innerHTML = `外気浴：${results.gaikiyoku}`;
+            document.getElementById("louly").innerHTML = `ロウリュ：${results.louly}`;
+            let checkedlocation = "";
+            for (let i = 0; i < results.location.length; i++) {
+                checkedlocation += results.location[i] + ' ';
+            }
+            document.getElementById("location").innerHTML = `県名：${checkedlocation}`;
+        </script>
+    </div>
+    <div class="main">
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'tab1')" id="defaultOpen">サウナ検索</button>
+            <button class="tablinks" onclick="openTab(event, 'tab2')">データ分析</button>
+            <button class="tablinks" onclick="openTab(event, 'tab3')">データ活用例</button>
+        </div>
+        <div id="tab1" class="tabcontent">
+            <div>
+                <h2>◆ 条件別サウナ検索</h2>
+                <p>利用目的に合わせて、条件を設定することで、サウナ施設を絞り込みします。</p>
+                <p>デフォルトでは人気なサウナに共通する条件が入力されています。</p>
+                <p>リセットを押すことでその項目の条件をクリアします。</p>
+                <p>デフォルトの設定に戻したい場合、ページをリロードしてください。</p>
+                <br>
+                <h2 style="margin-top: 0px; margin-bottom: 10px;">1. 条件選択</h2>
+                <form id="sauna-form" style="font-size: 18px;">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>・サウナ温度：</td>
+                                <td>
+                                    <label for="min-sauna"></label>
+                                    <input type="number" id="min-sauna" name="min-sauna">
+                                    <label for="max-sauna">〜</label>
+                                    <input type="number" id="max-sauna" name="max-sauna">
+                                </td>
+                                <td>
+                                    <button type="button" id="reset-sauna-filter">リセット</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>・水風呂温度：</td>
+                                <td>
+                                    <label for="min-mizuburo"></label>
+                                    <input type="number" id="min-mizuburo" name="min-mizuburo">
+                                    <label for="max-mizuburo">〜</label>
+                                    <input type="number" id="max-mizuburo" name="max-mizuburo">
+                                </td>
+                                <td>
+                                    <button type="button" id="reset-mizuburo-filter">リセット</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>・料金：</td>
+                                <td>
+                                    <label for="min-price"></label>
+                                    <input type="number" id="min-price" name="min-price">
+                                    <label for="max-price">〜</label>
+                                    <input type="number" id="max-price" name="max-price">
+                                </td>
+                                <td>
+                                    <button type="button" id="reset-price-filter">リセット</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>・外気浴：</td>
+                                <td>
+                                    <input type="radio" name="gaikiyoku-filter" id="gaikiyoku-on" value="◯">
+                                    <label for="gaikiyoku-on">有</label>
+                                    <input type="radio" name="gaikiyoku-filter" id="gaikiyoku-off" value="×">
+                                    <label for="gaikiyoku-off">無</label>
+                                </td>
+                                <td>
+                                    <button type="button" id="reset-gaikiyoku-filter">リセット</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>・ロウリュ：</td>
+                                <td>
+                                    <input type="radio" name="louly-filter" id="louly-on" value="◯">
+                                    <label for="louly-on">有</label>
+                                    <input type="radio" name="louly-filter" id="louly-off" value="×">
+                                    <label for="louly-off">無</label>
+                                </td>
+                                <td>
+                                    <button type="button" id="reset-louly-filter">リセット</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <script>
+                        document.getElementById("min-sauna").value = results.sauna.min;
+                        document.getElementById("max-sauna").value = results.sauna.max;
+                        document.getElementById("min-mizuburo").value = results.mizuburo.min;
+                        document.getElementById("max-mizuburo").value = results.mizuburo.max;
+                        document.getElementById("min-price").value = results.price.min;
+                        document.getElementById("max-price").value = results.price.max;
+
+                        // 外気浴のデフォルト
+                        if (results.gaikiyoku === '◯') {
+                            document.getElementById("gaikiyoku-on").checked = true;
+                        }
+                        else {
+                            document.getElementById("gaikiyoku-off").checked = true;
+                        }
+
+                        // ロウリュのデフォルト
+                        if (results.louly === '◯') {
+                            document.getElementById("louly-on").checked = true;
+                        }
+                        else {
+                            document.getElementById("louly-off").checked = true;
+                        }
+                    </script>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>・県名：　　　</td>
+                                <td style="font-size: 16px;">
+                                    <div id="location-container" class="checkbox-container"></div>
+                                    <script>
+                                        const locationList = ['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'];
+                                        const locationContainer = document.getElementById('location-container'); // チェックボックスの親要素
+
+                                        for (let i = 0; i < locationList.length; i++) {
+                                            const location = locationList[i];
+
+                                            const input = document.createElement('input');
+                                            input.type = 'checkbox';
+                                            input.name = 'location';
+                                            input.id = `location-${location.toLowerCase()}`;
+                                            input.value = location;
+
+                                            const label = document.createElement('label');
+                                            label.htmlFor = input.id;
+                                            label.textContent = location;
+
+                                            locationContainer.appendChild(input);
+                                            locationContainer.appendChild(label);
+
+                                            if (location === '富山県' || location === '島根県') {
+                                                locationContainer.appendChild(document.createElement('br'));
+                                            }
+                                        }
+
+                                        document.querySelectorAll('input[name="location"]').forEach(function(el) {
+                                            if (results.location.includes(el.value)) {
+                                                el.checked = true;
+                                            }
+                                        });
+                                    </script>
+                                </td>
+                                <td>
+                                    <button type="button" id="reset-location-filter">リセット</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <button type="submit" class="button">絞り込みを開始する</button>
+                </form>
+                <br>
+                <h2 style="margin-top: 40px;">2. 検索結果<span style="font-size: 20px;font-weight: normal;margin-left: 30px;">※各項目をクリックするとその項目でソートします。</span></h2>
+                <table id="myTable">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>サウナ温度 (℃)</th>
+                            <th>水風呂温度 (℃)</th>
+                            <th>外気浴</th>
+                            <th>ロウリュ</th>
+                            <th>料金 (円)</th>
+                            <th>サ活 (件)</th>
+                            <th>県名</th>
+                          </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>  
+        </div>
+        <div id="tab2" class="tabcontent">
+            <h2>◆ 取得データ</h2>
+            <p><a href="https://sauna-ikitai.com/search?ordering=post_counts_desc&target_gender%5B%5D=male&page=1">サウナイキタイ</a>から<span id="hit_sum"></span>件のデータを取得。(<span id="current_date2"></span>時点)</p>
+            <p>検収条件を<strong>検索結果数 == 取得データ数</strong>とした。</p>
+            <p>全国サウナ一覧ページから以下の項目についてスクレイピングを行った。</p>  
+            <script>
+                document.getElementById("hit_sum").innerHTML = `${results.hit_sum}`;
+                document.getElementById("current_date2").innerHTML = `${results.current_date}`;
+            </script>
+            <div class="itemization" style="font-size: 20px; padding: 10px; margin-bottom: 10px; border: 1px dashed #333333; border-radius: 5px;">
+                <li>サウナ温度</li>
+                <li>水風呂温度</li>
+                <li>外気浴の有無</li>
+                <li>ロウリュの有無</li>
+                <li>入浴料</li>
+                <li>サ活</li>
+                <li>県名</li>
+            </div>
+            <p>※サ活とは、施設に対するレビューのことである。本分析ではサ活の数をデータとして取得した。</p>
+            <h2>◆ 分析方針</h2>
+            <p>施設へのレビューを表すサ活が多いほど、来場者数が多いと判断し、次の仮定を立てた。</p>
+            <div style="margin-bottom: 10px; border: 1px solid #333333; background-color: #ffff99; text-align: center;">
+                <strong style="font-size: 30px;">サ活数が多い = 人気が高い！</strong>
+            </div>
+            <h3>＜サ活数について＞</h3>
+            <p>以下のグラフはx軸にサ活数、y軸に度数をとったヒストグラムである。(3つのグラフは定義域が異なる)</p>
+            <p>一番左のグラフを見ると、サ活数が0付近の時、度数は3000近くなっている。</p>
+            <p>しかし、サ活数が増えるほど、度数は減っていく。</p>
+            <div class="example" style="text-align: center;">
+                <img src="./image/hist_sakatsu.png" alt="サ活のヒストグラム" style="width: 90%; height: auto; border: 1px solid black;">
+            </div>
+            <h2>◆ 分析概要</h2>
+            <p>分析には取得したデータから、欠損値を含まないデータだけを使用する。(<span id="rawdata"></span>件)</p>
+            <p>取得したデータ(サウナ温度、水風呂温度、外気浴、ロウリュ、料金、県名)について、サ活が多いサウナにはどのような条件が含まれているかを可視化する。</p>
+            <script>
+                document.getElementById("rawdata").innerHTML = `${results.rawdata}`;
+            </script>
+            <h2>◆ 分析手順</h2>
+            <p>1. 初めに取得したデータのサ活数と各項目との関係をグラフ化する。</p>
+            <p>2. グラフから特徴が現れている場所を探し、サ活数の閾値を定める。</p>
+            <p>3. 閾値以上のデータを抜き出し、各項目についてグラフを作成する。</p>
+            <h2>◆ 分析結果</h2>
+            <h3>＜1. サ活数と各項目との散布図＞</h3>
+            <p>以下のグラフはx軸にサ活数、y軸にサウナ温度、水風呂温度、料金をとった散布図である。</p>
+            <p>この散布図をみると、サ活数が増えるほど、データの散らばりが小さくなっている様子がわかる。</p>
+            <div class="example" style="text-align: center;">
+                <img src="./image/scatter_plots.png" alt="サ活との散布図" style="width: 90%; height: auto; border: 1px solid black;">
+            </div>
+            <h3>＜2. サ活数の閾値を定める＞</h3>
+            <p>先ほどの散布図から、データの散らばりが小さくなる、サ活数の閾値を決定する。</p>
+            <p>グラフから閾値は<span id="threshold"></span>に設定する。</p>
+            <script>
+                document.getElementById("threshold").innerHTML = `${results.threshold}`;
+            </script>
+            <h3>＜3. 閾値以上のデータの可視化＞</h3>
+            <p>以下のグラフは閾値<span id="threshold2"></span>以上のデータについて、各項目とサ活との関係を著したヒストグラムや箱ひげ図である。</p>
+            <script>
+                document.getElementById("threshold2").innerHTML = `${results.threshold}`;
+            </script>
+            <p>各項目について、グラフから特徴を読みとることで、サ活数の多い施設の条件を抽出する。</p>
+            <div style="text-align: center;">
+                <div class="result-fig" style="text-align: center;">
+                    <img src="./image/hist_all.png" alt="閾値以上のヒストグラム" style="width: 90%; height: auto;">
+                    <img src="./image/hist_box.png" alt="棒グラフと箱ひげ図" style="width: 88%; height: auto;">
+                </div>
+            </div>
+            <h2>◆ 結論</h2>
+            <p><strong>人気なサウナに共通する条件は・・・</strong></p>
+            <div class="result-text" style="padding: 10px; margin-bottom: 10px; border: 5px double #000000;">
+                <li id="sauna2"></li>
+                <li id="mizuburo2"></li>
+                <li id="price2"></li>
+                <li id="gaikiyoku2"></li>
+                <li id="louly2"></li>
+                <li id="location2"></li>
+            </div>
+            <script>
+                document.getElementById("sauna2").innerHTML = `サウナ温度：${results.sauna.min}〜${results.sauna.max}℃`;
+                document.getElementById("mizuburo2").innerHTML = `水風呂温度：${results.mizuburo.min}〜${results.mizuburo.max}℃`;
+                document.getElementById("price2").innerHTML = `料金：${results.price.min}〜${results.price.max}円`;
+                document.getElementById("gaikiyoku2").innerHTML = `外気浴：${results.gaikiyoku}`;
+                document.getElementById("louly2").innerHTML = `ロウリュ：${results.louly}`;
+                let checkedlocation2 = "";
+            for (let i = 0; i < results.location.length; i++) {
+                checkedlocation2 += results.location[i] + ' ';
+            }
+            document.getElementById("location2").innerHTML = `県名：${checkedlocation2}`;
+            </script>
+        </div>
+        <div id="tab3" class="tabcontent">
+            <h2>◆ 当サイトの目的</h2>
+            <p>サウナに興味があるが経験が少ない方向けに、データサイエンスの観点からおすすめを提案します。</p>
+            <p>人気なサウナに共通する条件を抽出するとともに、検索機能を提供しています。</p>
+            <h2 style="margin-top: 30px;">◆ 活用例1 〜人気な条件を満たす穴場のサウナ〜</h2>
+            <p>人気なサウナの条件を全て満たすが、サ活数の少ない施設を探す。</p>
+            <div class="example" style="text-align: center;">
+                <img src="./image/example.png" alt="サウナの写真" style="width: 90%; height: auto; border: 1px solid black;">
+                <div style="margin: 5px;">
+                  <span style="font-size: 50px; color: black;">▼</span>
+                </div>
+                <img src="./image/example2.png" alt="サウナの写真" style="width: 90%; height: auto; border: 1px solid black;">
+            </div>
+            <h2>◆ 活用例2 〜人気な条件を満たすコスパの良いサウナ〜</h2>
+            <p>人気なサウナの条件を満たし(料金以外)、料金が安い施設を探す。</p>
+            <div class="example" style="text-align: center;">
+                <img src="./image/example3.png" alt="サウナの写真" style="width: 90%; height: auto; border: 1px solid black;">
+                <div style="margin: 5px;">
+                  <span style="font-size: 50px; color: black;">▼</span>
+                </div>
+                <img src="./image/example4.png" alt="サウナの写真" style="width: 90%; height: auto; border: 1px solid black;">
+            </div>
+            <h2>◆ 活用例3 〜旅行先でオススメなサウナ〜</h2>
+            <p>旅行先の都道府県を設定し、人気なサウナの条件を満たす施設を探す。</p>
+            <div class="example" style="text-align: center;">
+                <img src="./image/example5.png" alt="サウナの写真" style="width: 90%; height: auto; border: 1px solid black;">
+                <div style="margin: 5px;">
+                  <span style="font-size: 50px; color: black;">▼</span>
+                </div>
+                <img src="./image/example6.png" alt="サウナの写真" style="width: 90%; height: auto; border: 1px solid black;">
+            </div>
+            <h2>◆ 当サイトのソースコード</h2>
+            <p>Githubにて公開しています。データ収集に使用したpythonのスクリプトを含めています。</p>
+            <p><a href="https://github.com/arastormy/Sauna_Web_Code">https://github.com/arastormy/Sauna_Web_Code</a></p>
+        </div>
+    </div>
+    <script src="./js/script.js"></script>
+</body>
+</html>
